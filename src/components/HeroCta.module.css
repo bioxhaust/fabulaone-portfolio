@@ -1,0 +1,194 @@
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.primary,
+.play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 54px;
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  text-decoration: none;
+  transition-property: transform, background-color, box-shadow, color;
+  transition-duration: 160ms;
+  transition-timing-function: var(--ease-out);
+}
+
+/* Главный CTA — «тёмная пилюля» из токенов (см. globals: --cta-*). */
+.primary {
+  color: var(--color-heading);
+  background: var(--cta-solid);
+  box-shadow: inset 0 0 0 1px var(--cta-stroke), var(--cta-shadow);
+}
+
+.primary svg {
+  transition: transform 220ms var(--ease-out);
+}
+
+/* Вторичный — «призрачная» пилюля с иконкой play. Матовое стекло поверх
+   фото, волосяная светлая рамка. */
+.play {
+  border: none;
+  color: var(--color-heading);
+  background: oklch(from var(--color-surface-1) l c h / 0.32);
+  box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.28);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.playIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-left: calc(-1 * var(--space-1));
+  border-radius: var(--radius-pill);
+  color: var(--color-void);
+  background: oklch(from var(--color-cyan) l c h / 0.92);
+}
+
+.primary:focus-visible,
+.play:focus-visible,
+.modalClose:focus-visible,
+.modalCta:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.primary:active,
+.play:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .primary:hover {
+    background: var(--cta-solid-hover);
+    box-shadow: inset 0 0 0 1px var(--cta-stroke-hover), var(--cta-shadow);
+  }
+
+  .primary:hover svg {
+    transform: translateX(4px);
+  }
+
+  .play:hover {
+    background: oklch(from var(--color-surface-2) l c h / 0.5);
+    box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.4);
+  }
+}
+
+/* ── Модалка-заглушка видео ────────────────────────────────────────── */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  background: oklch(0.05 0.02 270 / 0.62);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-8) var(--space-6) var(--space-6);
+  border-radius: var(--radius-xl);
+  text-align: center;
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
+  box-shadow:
+    inset 0 0 0 1px var(--glass-stroke),
+    var(--shadow-float);
+}
+
+.modalClose {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: var(--radius-pill);
+  color: var(--color-muted);
+  background: transparent;
+  cursor: pointer;
+  transition: color 150ms var(--ease-out), background-color 150ms var(--ease-out);
+}
+
+.modalArt {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto var(--space-4);
+  border-radius: var(--radius-pill);
+  color: var(--color-cyan);
+  background: oklch(from var(--color-cyan) l c h / 0.14);
+  box-shadow: inset 0 0 0 1px oklch(from var(--color-cyan) l c h / 0.3);
+}
+
+.modalTitle {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  font-weight: 500;
+  letter-spacing: var(--tracking-tight);
+}
+
+.modalText {
+  margin: 0 auto var(--space-6);
+  max-width: 34ch;
+  color: oklch(from var(--color-body) l c h / 0.9);
+  font-size: var(--text-base);
+  line-height: 1.55;
+}
+
+.modalCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 50px;
+  padding: 0 var(--space-6);
+  border: none;
+  border-radius: var(--radius-pill);
+  color: var(--color-heading);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--cta-solid);
+  box-shadow: inset 0 0 0 1px var(--cta-stroke), var(--cta-shadow);
+  transition: background-color 160ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .modalClose:hover {
+    color: var(--color-heading);
+    background: oklch(1 0 0 / 0.08);
+  }
+
+  .modalCta:hover {
+    background: var(--cta-solid-hover);
+  }
+}

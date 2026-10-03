@@ -1,0 +1,38 @@
+.consents {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.checkLabel {
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--color-body);
+}
+
+.link {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  border-radius: var(--radius-sm);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .link:hover {
+    color: var(--color-accent-hover);
+  }
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.hint {
+  margin: var(--space-2) 0 0;
+  padding-left: calc(18px + var(--space-3));
+  font-size: var(--text-xs);
+  line-height: 1.45;
+  color: var(--color-muted);
+}

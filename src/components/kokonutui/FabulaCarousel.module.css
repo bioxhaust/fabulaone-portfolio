@@ -1,0 +1,36 @@
+/* Соседние карточки приглушаются, когда курсор стоит на одной.
+   Только мышь: на таче «наведение» залипает после касания. */
+
+.track {
+  display: flex;
+  gap: var(--space-6);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: var(--space-2);
+  scrollbar-width: none;
+}
+
+.track::-webkit-scrollbar { display: none; }
+
+.track:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+}
+
+.track > * {
+  scroll-snap-align: start;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .track > * {
+    transition: opacity 520ms var(--ease-glide);
+  }
+
+  .track:hover > * { opacity: 0.42; }
+  .track:hover > *:hover,
+  .track:hover > *:focus-within { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track > * { transition: none; }
+}

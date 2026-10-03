@@ -1,0 +1,342 @@
+/* ─── Страница фабулы ─────────────────────────────────────────────
+   Витрина одного продукта: крупная обложка слева, типографический
+   блок справа. Обе колонки прокручиваются ВМЕСТЕ — никакой sticky
+   у обложки (раньше она «зависала», пока остальное уезжало вверх, и
+   это читалось как сломанный, съезжающий скролл).
+   ────────────────────────────────────────────────────────────── */
+
+.page {
+  position: relative;
+  isolation: isolate;
+  padding-block: var(--space-16) var(--space-24);
+  background: transparent;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "cover"
+    "info"
+    "body"
+    "included";
+  gap: var(--space-12);
+}
+
+.coverWrap { grid-area: cover; }
+.info { grid-area: info; }
+.bodyWrap { grid-area: body; }
+.included { grid-area: included; }
+
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.92fr);
+    grid-template-areas:
+      "cover info"
+      "cover body"
+      "included included";
+    gap: var(--space-12) var(--space-16);
+    align-items: start;
+  }
+}
+
+/* ── Обложка ───────────────────────────────────────────────────── */
+.coverWrap {
+  position: relative;
+  width: 100%;
+}
+
+.coverFrame {
+  position: relative;
+  margin: 0;
+}
+
+.cover {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+  box-shadow:
+    inset 0 0 0 1px oklch(1 0 0 / 0.12),
+    0 24px 60px oklch(0 0 0 / 0.5);
+}
+
+/* Кинематографичное затемнение снизу кадра — тот же ритм, что в ленте каталога. */
+.cover::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 42%;
+  background: linear-gradient(to top, oklch(0.06 0.02 270 / 0.55), transparent);
+  pointer-events: none;
+}
+
+.coverImg {
+  object-fit: cover;
+}
+
+.coverFallback {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 28% 24%, oklch(from var(--color-aurora-2) l c h / 0.32) 0%, transparent 56%),
+    radial-gradient(circle at 76% 72%, oklch(from var(--color-aurora-1) l c h / 0.32) 0%, transparent 56%),
+    var(--color-surface-2);
+}
+
+/* Обложка растворяется книзу — «кинематографичный» край */
+.coverSheen { display: none; }
+
+/* ── Правая колонка ────────────────────────────────────────────── */
+.info {
+  grid-area: info;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+  min-width: 0;
+}
+
+.headMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-6);
+}
+
+.title {
+  font-size: var(--text-3xl);
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.short {
+  font-size: var(--text-md);
+  color: var(--color-muted);
+  line-height: 1.55;
+  max-width: 42ch;
+  text-wrap: pretty;
+}
+
+/* ── Блок покупки: liquid glass ────────────────────────────────── */
+.buyBlock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+  flex-wrap: wrap;
+  padding: var(--space-6) var(--space-8);
+  border-radius: var(--radius-lg);
+  background: oklch(from var(--color-surface-1) l c h / 0.5);
+  box-shadow:
+    inset 0 0 0 1px var(--glass-stroke),
+    0 16px 44px oklch(0 0 0 / 0.5);
+  backdrop-filter: blur(18px) saturate(1.3);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
+}
+
+.priceWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.price {
+  display: inline-flex;
+  align-items: baseline;
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-tight);
+  line-height: 1;
+  color: var(--color-heading);
+  white-space: nowrap;
+}
+
+.currency {
+  margin-left: 0.2em;
+  font-size: 0.5em;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+/* Точка-маркер вместо буллита — тот же язык, что и у .timecode */
+.hint {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
+/* ── Подробное описание из CMS ─────────────────────────────────────
+   Приходит из richText, поэтому стилизуем по тегам. Держим скромно:
+   это текст под карточкой покупки, он не должен спорить с заголовком. */
+.bodyWrap {
+  min-width: 0;
+}
+
+.body {
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-body);
+  font-size: var(--text-base);
+  line-height: 1.75;
+}
+
+.body > * + * { margin-top: var(--space-4); }
+
+.body h2,
+.body h3,
+.body h4 {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+  margin-top: var(--space-8);
+}
+
+.body ul,
+.body ol {
+  padding-left: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.body ul > li::marker,
+.body ol > li::marker { color: var(--color-accent); }
+
+.body a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.body a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+.body strong { color: var(--color-heading); font-weight: 600; }
+
+.hint::before { content: none; }
+
+/* ── Что входит: три стеклянные карточки (эхо FeatureRow на главной) ── */
+.included {
+  margin-top: var(--space-8);
+}
+
+.includedTitle {
+  font-size: var(--text-2xl);
+  font-weight: 500;
+  margin: 0 0 var(--space-8);
+}
+
+.includedList {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.includedItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  background: oklch(from var(--color-surface-1) l c h / 0.42);
+  box-shadow:
+    inset 0 0 0 1px oklch(1 0 0 / 0.1),
+    0 8px 24px oklch(0 0 0 / 0.28);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+/* Кружок-маркер в языке акцентных чипов (как иконки фич на главной). */
+.includedMark {
+  position: relative;
+  display: block;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-pill);
+  background: oklch(from var(--color-cyan) l c h / 0.12);
+  box-shadow: inset 0 0 0 1px oklch(from var(--color-cyan) l c h / 0.32);
+}
+
+.includedMark::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-cyan);
+}
+
+.includedName {
+  display: block;
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-heading);
+  margin-bottom: var(--space-2);
+}
+
+.includedText {
+  display: block;
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--color-muted);
+}
+
+.related {
+  margin-top: var(--space-24);
+  padding-top: var(--space-16);
+  border-top: 1px solid var(--color-border);
+}
+
+.relatedTitle {
+  margin: 0 0 var(--space-10);
+  font-size: var(--text-2xl);
+  font-weight: 500;
+}
+
+@media (max-width: 700px) {
+  /* Запас под липкую полосу покупки, когда основной блок ушёл вверх. */
+  .page { padding-block: var(--space-10) calc(var(--space-20) + 88px); }
+  .grid { gap: var(--space-10); }
+  .info { gap: var(--space-8); }
+  .title { font-size: var(--text-3xl); }
+  .short { font-size: var(--text-base); }
+  .includedList { grid-template-columns: 1fr; }
+  .buyBlock {
+    padding: var(--space-6);
+    gap: var(--space-6);
+  }
+}
+
+@media (max-width: 560px) {
+  .buyBlock {
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--space-4);
+  }
+  .price { font-size: var(--text-2xl); }
+}
+
+/* ── Снижение анимации ─────────────────────────────────────────── */

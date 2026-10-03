@@ -1,0 +1,218 @@
+/* ─── Успешная оплата ─────────────────────────────────────────────
+   Единственный экран, где уместен праздник: волна разворачивается
+   один раз при загрузке и замирает. Никаких бесконечных циклов.
+   ────────────────────────────────────────────────────────────────── */
+
+.page {
+  position: relative;
+  isolation: isolate;
+  /* clip, а не hidden: hidden создаёт скролл-контейнер и ломает
+     view()-таймлайны внутри (см. Reveal.module.css). */
+  overflow: clip;
+  min-height: calc(100svh - var(--header-h));
+  display: flex;
+  align-items: center;
+  padding-block: var(--space-16) var(--space-20);
+  background: transparent;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: min(40rem, 100%);
+  margin-inline: auto;
+  text-align: start;
+}
+
+/* ── Знак подтверждения ────────────────────────────────────────── */
+.badge {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border-radius: var(--radius-sm);
+  flex: none;
+  color: var(--color-success);
+  background: oklch(from var(--color-success) l c h / 0.1);
+  border: 1px solid oklch(from var(--color-success) l c h / 0.32);
+  margin-bottom: var(--space-8);
+}
+
+@keyframes badgeIn {
+  0%   { opacity: 0; transform: scale(0.72); }
+  60%  { opacity: 1; transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ripple {
+  0%   { opacity: 0.7; transform: scale(1); }
+  100% { opacity: 0;   transform: scale(1.9); }
+}
+
+/* Галочка прорисовывается штрихом */
+.check path {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: draw 620ms var(--ease-out) 300ms both;
+}
+
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* ── Текстовый блок ────────────────────────────────────────────── */
+.eyebrow {
+  display: block;
+  margin-bottom: var(--space-4);
+}
+
+.title {
+  font-size: var(--text-4xl);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: var(--tracking-hero);
+  margin-bottom: var(--space-6);
+}
+
+.title span {
+  display: block;
+}
+
+.title span:nth-child(1) { animation-delay: 260ms; }
+.title span:nth-child(2) { animation-delay: 360ms; }
+
+.title span:nth-child(2) {
+  color: var(--color-heading);
+}
+
+.text {
+  max-width: 46ch;
+  font-size: var(--text-md);
+  line-height: 1.65;
+  color: var(--color-muted);
+  margin-bottom: var(--space-10);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translate3d(0, 28px, 0); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Празднующая волна ─────────────────────────────────────────── */
+.waveWrap {
+  position: relative;
+  width: 100%;
+  max-width: 760px;
+  margin-top: var(--space-16);
+  pointer-events: none;
+}
+
+.wave {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  height: 96px;
+  /* края растворяются — волна не обрывается о рамку контейнера */
+  mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+}
+
+.bar {
+  flex: 1 1 0;
+  max-width: 5px;
+  height: calc(var(--h) * 100%);
+  min-height: 3px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(
+    to top,
+    oklch(from var(--color-accent-deep) l c h / 0.45),
+    var(--color-accent)
+  );
+  transform-origin: bottom center;
+  /* both — полоса замирает в конечной высоте, повтора нет */
+}
+
+@keyframes unfold {
+  0%   { opacity: 0; transform: scaleY(0); }
+  55%  { opacity: 1; transform: scaleY(1.14); }
+  100% { opacity: 0.82; transform: scaleY(1); }
+}
+
+/* Линия горизонта раскрывается из центра вслед за волной */
+.horizon {
+  display: block;
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--color-border-lit) 22%,
+    var(--color-accent) 50%,
+    var(--color-border-lit) 78%,
+    transparent);
+  box-shadow: 0 0 24px oklch(from var(--color-accent) l c h / 0.35);
+  transform: scaleX(0);
+  animation: spread 1100ms var(--ease-glide) 120ms both;
+}
+
+@keyframes spread {
+  to { transform: scaleX(1); }
+}
+
+.timecode {
+  margin-top: var(--space-8);
+}
+
+/* ── Адаптив ───────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .page {
+    padding-block: var(--space-12) var(--space-16);
+  }
+  .badge { width: 64px; height: 64px; margin-bottom: var(--space-6); }
+  .text { font-size: var(--text-base); margin-bottom: var(--space-8); }
+  .waveWrap { margin-top: var(--space-12); }
+  .wave { height: 68px; gap: 3px; }
+}
+
+@media (max-width: 560px) {
+  /* шапка уменьшается только здесь (Header.module.css) — вычитаем её высоту */
+  .page { min-height: calc(100svh - 64px); }
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 320px;
+    gap: var(--space-3);
+  }
+  .wave { height: 56px; gap: 2px; }
+}
+
+/* ── Доступность: гасим праздник ───────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .badge,
+  .eyebrow,
+  .title span,
+  .text,
+  .actions,
+  .timecode {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .badge::after { animation: none; opacity: 0; }
+  .check path { animation: none; stroke-dashoffset: 0; }
+  .bar { animation: none; opacity: 0.82; transform: none; }
+  .horizon { animation: none; transform: none; }
+}

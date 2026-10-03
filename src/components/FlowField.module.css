@@ -1,0 +1,126 @@
+/* Обёртка поля частиц. Всё рисование — в canvas, здесь только затемнение
+   краёв и зерно. Ни одного blur-фильтра: радиальный градиент с прозрачным
+   краем даёт то же мягкое пятно и стоит ноль на кадре. */
+
+.host {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  background-color: var(--color-surface-0);
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/* Крупные мягкие свечения — на макете они несут основную атмосферу, а
+   частицы только детализируют. Радиальный градиент с прозрачным краем, а
+   не filter: blur — блюр такого радиуса пересчитывается каждый кадр и
+   роняет прокрутку (на этом уже спотыкались в WaveField).
+   mix-blend-mode: screen, чтобы свечения складывались со частицами, а не
+   перекрывали их серым пятном. */
+.glow {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: screen;
+}
+
+.glow::before,
+.glow::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+}
+
+/* Фиолетовое — слева по центру, за заголовком */
+.glow::before {
+  width: 70vw;
+  height: 70vw;
+  max-width: 1000px;
+  max-height: 1000px;
+  top: -18%;
+  left: -12%;
+  background: radial-gradient(
+    circle,
+    oklch(from var(--color-aurora-1) l c h / 0.26) 0%,
+    oklch(from var(--color-aurora-1) l c h / 0.09) 38%,
+    transparent 70%
+  );
+  animation: driftGlowA 34s var(--ease-glide) infinite alternate;
+}
+
+/* Циановое — справа, ниже: на макете оттуда идёт холодный свет */
+.glow::after {
+  width: 58vw;
+  height: 58vw;
+  max-width: 820px;
+  max-height: 820px;
+  bottom: -22%;
+  right: -10%;
+  background: radial-gradient(
+    circle,
+    oklch(from var(--color-aurora-2) l c h / 0.22) 0%,
+    oklch(from var(--color-aurora-2) l c h / 0.07) 40%,
+    transparent 72%
+  );
+  animation: driftGlowB 42s var(--ease-glide) infinite alternate;
+}
+
+@keyframes driftGlowA {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(7%, 5%, 0) scale(1.12); }
+}
+
+@keyframes driftGlowB {
+  from { transform: translate3d(0, 0, 0) scale(1.08); }
+  to   { transform: translate3d(-8%, -6%, 0) scale(1); }
+}
+
+/* Герой уехал из вида — свечения встают на паузу (data-running ставит
+   IntersectionObserver в FlowField.tsx, там же объяснение). */
+.host[data-running='0'] .glow::before,
+.host[data-running='0'] .glow::after {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow::before,
+  .glow::after {
+    animation: none;
+  }
+}
+
+/* Виньетка только для неба: низ героя закрыт пейзажем, и гасить его
+   в surface-0 незачем — получилась бы снова «пустая тьма» вокруг текста.
+   0.42 по краям, не 0.9: частицы должны читаться как космос, а не как
+   редкая пыль на почти чёрном поле. */
+.vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 78% 68% at 50% 34%,
+      transparent 28%,
+      oklch(from var(--color-surface-0) l c h / 0.42) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      oklch(from var(--color-surface-0) l c h / 0.5) 0%,
+      transparent 16%,
+      transparent 70%,
+      oklch(from var(--color-surface-0) l c h / 0.2) 100%
+    );
+}
+
+/* Снимает бандинг на больших градиентах — тот же приём, что в WaveField. */
+.grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.09;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}

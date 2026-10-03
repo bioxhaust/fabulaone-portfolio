@@ -1,0 +1,127 @@
+/* ─── Вход в партнёрский кабинет ───────────────────────────────── */
+
+.page {
+  position: relative;
+  /* Ровно один экран под шапкой, чтобы карточка стояла в оптическом центре.
+     Через токен, а не литералом: раньше здесь было 76px при --header-h: 72px,
+     плюс отдельные 64px в медиазапросе — три числа про одну и ту же шапку. */
+  min-height: calc(100svh - var(--header-h));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-16) var(--space-6);
+  /* clip, а не hidden: hidden создаёт скролл-контейнер и ломает
+     view()-таймлайны внутри (см. Reveal.module.css). */
+  overflow: clip;
+  isolation: isolate;
+  background: transparent;
+}
+
+/* Фон отдан общему FabulaAmbient. Раньше здесь лежала своя аврора из двух
+   радиальных градиентов с бесконечной анимацией — и такая же, но чуть другая,
+   на /auth/login. Семь похожих фонов это не одна узнаваемая система. */
+
+
+/* ── Карточка ──────────────────────────────────────────────────── */
+.card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-12) var(--space-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: none;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translate3d(0, 20px, 0); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Шапка карточки ────────────────────────────────────────────── */
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.title {
+  font-size: var(--text-xl);
+  line-height: 1.1;
+}
+
+/* ── Форма ─────────────────────────────────────────────────────── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.submit {
+  width: 100%;
+  min-height: 50px;
+}
+
+/* ── Ошибка входа: заметно, но спокойно ────────────────────────── */
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--color-danger);
+  padding: var(--space-3) var(--space-4);
+  background: oklch(from var(--color-danger) l c h / 0.07);
+  border: 1px solid oklch(from var(--color-danger) l c h / 0.3);
+  border-radius: var(--radius-md);
+  animation: errorIn 320ms var(--ease-out) both;
+}
+
+/* Точка-индикатор — тот же приём, что у .timecode */
+.error::before {
+  content: '';
+  flex: none;
+  width: 5px;
+  height: 5px;
+  margin-top: 0.62em;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+@keyframes errorIn {
+  from { opacity: 0; transform: translate3d(0, -6px, 0); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Адаптив ───────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .page {
+    padding: var(--space-12) var(--space-4);
+  }
+  .card {
+    padding: var(--space-10) var(--space-6);
+    gap: var(--space-6);
+  }
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding: var(--space-8) var(--space-4);
+  }
+  .card {
+    padding: var(--space-8) var(--space-4);
+    border-radius: var(--radius-md);
+  }
+}
+
+/* ── Доступность: снижение анимации ────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .error { animation: none; }
+}

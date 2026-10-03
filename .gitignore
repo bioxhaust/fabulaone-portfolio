@@ -1,0 +1,68 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment (СЕКРЕТЫ — никогда не коммитить)
+.env
+.env.local
+.env*.local
+.env.production
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Payload / uploads
+/media/
+public/media/
+payload-types.ts.bak
+
+# Production
+*.tsbuildinfo
+next-env.d.ts
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# Testing
+/coverage
+
+# Vercel
+.vercel
+
+# Local uploads / temp
+/tmp/
+/uploads/
+
+# Скриншоты и замеры «до/после» из scripts/find-overflow и measure-fps.
+# Это артефакты проверки, а не исходники: десятки мегабайт PNG, которые
+# перегенерируются одной командой.
+/audit/
+
+# Local notes / client materials (not for repo)
+chat.txt
+*.pdf
+*.docx
+.claude/
+.freebuff/
+
+# Локальные фото, не исходники
+/*.jpg
+/*.jpeg

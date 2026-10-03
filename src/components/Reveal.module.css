@@ -1,0 +1,54 @@
+/* Появление секций при прокрутке — на чистом CSS scroll-driven анимациях,
+   без JS и без IntersectionObserver.
+
+   Главный урок прошлой версии: нельзя прятать контент через opacity: 0,
+   который снимает только скрипт — без JS страница оставалась пустой. Здесь
+   базовое состояние всегда видимое, а анимация появления включается ТОЛЬКО
+   там, где браузер умеет view()-таймлайн (@supports) и пользователь не
+   просил меньше движения. Где не умеет — контент просто виден.
+
+   Оборачиваем этим лишь блоки НИЖЕ первого экрана (каталог, цитата, полоса
+   PERSONAL, показатели). На них до прокрутки таймлайн стоит в 0% = стартовый
+   кадр, и это корректно: их и так не видно. Первый экран и ряд фич НЕ
+   оборачиваем — иначе на загрузке они оказались бы в стартовом кадре. */
+
+.reveal {
+  /* базовое состояние — видимое */
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .up,
+    .scale {
+      animation: reveal-up linear both;
+      animation-timeline: view();
+      animation-range: entry 8% cover 26%;
+    }
+
+    .scale {
+      animation-name: reveal-scale;
+    }
+  }
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes reveal-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

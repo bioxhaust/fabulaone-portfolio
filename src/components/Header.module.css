@@ -1,0 +1,299 @@
+/* ─── Плавающая glass-шапка «пилюлей» (ENSŌ-стиль) ──────────────────
+   Шапка вынута из потока (fixed), кликается только сама пилюля — прозрачные
+   поля по бокам пропускают клики к контенту под ними. Пилюля — матовое
+   стекло поверх фото героя и поверх плоского фона внутренних страниц.    */
+.header {
+  position: fixed;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding-top: calc(env(safe-area-inset-top, 0px) + var(--space-3));
+  pointer-events: none;
+}
+
+.shell {
+  position: relative;
+  z-index: 2; /* пилюля остаётся кликабельной поверх затемнения drawer */
+  width: min(100% - 2 * var(--space-4), 1200px);
+  margin-inline: auto;
+  pointer-events: auto;
+}
+
+/* ── Стеклянная пилюля ─────────────────────────────────────────────── */
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 60px;
+  padding-inline: clamp(var(--space-3), 2.5vw, var(--space-6));
+  border-radius: var(--radius-pill);
+  background: var(--glass-photo-fill);
+  -webkit-backdrop-filter: blur(var(--glass-photo-blur)) saturate(1.4);
+  backdrop-filter: blur(var(--glass-photo-blur)) saturate(1.4);
+  box-shadow:
+    inset 0 0 0 1px var(--glass-photo-stroke),
+    var(--glass-sheen),
+    0 8px 30px oklch(0 0 0 / 0.35);
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: none;
+  color: var(--color-heading);
+  min-height: 44px;
+}
+
+.mark {
+  width: 28px;
+  height: 12px;
+  flex: none;
+  color: oklch(from var(--color-cyan) l c h / 0.92);
+}
+
+.logoText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1.1;
+}
+
+.logoName {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.logoTag {
+  color: oklch(from var(--color-body) l c h / 0.92);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.logo:focus-visible,
+.nav a:focus-visible,
+.loginPill:focus-visible,
+.burger:focus-visible,
+.drawerNav a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Десктоп-навигация ─────────────────────────────────────────────── */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.nav a {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  min-height: 40px;
+  padding-inline: var(--space-4);
+  border-radius: var(--radius-pill);
+  color: oklch(from var(--color-body) l c h / 0.9);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color 150ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 150ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.nav a.active {
+  color: var(--color-heading);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+}
+
+.loginPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-height: 40px;
+  padding-inline: 18px;
+  border-radius: var(--radius-pill);
+  color: var(--color-heading);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.32);
+  transition: background-color 150ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 150ms cubic-bezier(0.2, 0, 0, 1),
+    transform 150ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.loginPill:active {
+  transform: scale(0.96);
+}
+
+/* ── Бургер (только мобайл) ────────────────────────────────────────── */
+.burger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-heading);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background-color 150ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav a:hover {
+    color: var(--color-heading);
+    background: oklch(1 0 0 / 0.08);
+  }
+
+  .loginPill:hover {
+    background: oklch(1 0 0 / 0.1);
+    box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.5);
+  }
+
+  .burger:hover {
+    background: oklch(1 0 0 / 0.08);
+  }
+}
+
+/* ── Мобильное меню: затемнение + выпадающая панель ────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: oklch(0.05 0.02 270 / 0.5);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  pointer-events: auto;
+}
+
+.drawer {
+  position: fixed;
+  top: calc(var(--header-h) + var(--space-2));
+  left: var(--space-4);
+  right: var(--space-4);
+  max-width: 420px;
+  margin-inline: auto;
+  padding: var(--space-3);
+  border-radius: var(--radius-xl);
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
+  box-shadow:
+    inset 0 0 0 1px var(--glass-stroke),
+    var(--glass-sheen),
+    var(--shadow-float);
+}
+
+.drawerNav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.drawerNav a {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding-inline: var(--space-4);
+  border-radius: var(--radius-lg);
+  color: oklch(from var(--color-body) l c h / 0.92);
+  font-size: var(--text-md);
+  font-weight: 500;
+}
+
+.drawerNav a.drawerActive {
+  color: var(--color-heading);
+  background: oklch(from var(--color-surface-2) l c h / 0.6);
+}
+
+/* «Войти» в меню — выделенная строка с волосяной рамкой. */
+.drawerLogin {
+  margin-top: var(--space-2);
+  justify-content: center;
+  color: var(--color-heading) !important;
+  font-weight: 600 !important;
+  box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.3);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .drawerNav a:hover {
+    background: oklch(from var(--color-surface-2) l c h / 0.45);
+    color: var(--color-heading);
+  }
+}
+
+/* Точка переключения на бургер: два пункта + «Войти» перестают помещаться
+   рядом с логотипом ниже ~720px. Тогда навигация и вход уходят в drawer. */
+@media (max-width: 719px) {
+  .nav,
+  .loginPill {
+    display: none;
+  }
+
+  .burger {
+    display: inline-flex;
+  }
+}
+
+/* Десктоп: бургер и меню не нужны. */
+@media (min-width: 720px) {
+  .burger,
+  .overlay,
+  .drawer {
+    display: none;
+  }
+}
+
+/* «Личный кабинет» длиннее кнопки «Войти» — на узком десктопе уходит в меню. */
+@media (max-width: 959px) {
+  .session .nav {
+    display: none;
+  }
+
+  .session .burger {
+    display: inline-flex;
+  }
+
+  .session .overlay,
+  .session .drawer {
+    display: block;
+  }
+}
+
+@media (max-width: 640px) {
+  .logoTag {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .bar {
+    padding-inline: var(--space-3);
+  }
+
+  .logoName {
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+  }
+}

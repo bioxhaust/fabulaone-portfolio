@@ -1,0 +1,66 @@
+<!doctype html><html lang="ru"><meta charset="utf-8">
+<title>FABULA ONE — пейзажи и палитра</title>
+<style>
+  :root{
+    --surface-0:#0f0b08; --surface-1:#221d19; --surface-2:#2c2622; --surface-3:#39332e;
+    --border:#57514d; --border-strong:#6e6862; --border-lit:#837257;
+    --muted:#989189; --body:#e5e0db; --heading:#f8f6f3; --accent:#dab975;
+  }
+  *{box-sizing:border-box} 
+  body{margin:0;background:var(--surface-0);color:var(--body);
+       font:15px/1.7 -apple-system,system-ui,sans-serif;padding:40px}
+  h1{color:var(--heading);font-size:26px;letter-spacing:-.02em;margin:0 0 6px}
+  h2{color:var(--heading);font-size:15px;letter-spacing:.16em;text-transform:uppercase;
+     font-weight:600;margin:48px 0 16px;color:var(--accent)}
+  .sub{color:var(--muted);margin:0 0 8px;max-width:70ch}
+  .hero{margin-top:20px;border:1px solid var(--border);border-radius:16px;overflow:hidden;
+        position:relative;aspect-ratio:16/9}
+  .hero img{width:100%;height:100%;object-fit:cover;display:block}
+  .scrim{position:absolute;inset:0;background:
+     linear-gradient(to right,rgba(15,11,8,.92),rgba(15,11,8,.72) 38%,rgba(15,11,8,.25) 72%,transparent),
+     linear-gradient(to bottom,rgba(15,11,8,.55),transparent 28%,transparent 55%,var(--surface-0))}
+  .txt{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 6%}
+  .eyebrow{color:var(--accent);letter-spacing:.18em;text-transform:uppercase;font-size:12px;font-weight:600}
+  .title{color:var(--heading);font-size:clamp(34px,6.4vw,86px);line-height:.92;
+         font-weight:800;letter-spacing:-.045em;text-transform:uppercase;margin:14px 0}
+  .title .gold{background:linear-gradient(100deg,#9c8560,#f0d3a0 28%,#cfae72 52%,#f7e3bd 72%,#96805c);
+        -webkit-background-clip:text;background-clip:text;color:transparent}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:18px}
+  .card{background:var(--surface-1);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+  .card img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+  .card p{margin:0;padding:12px 14px;font-size:13px;color:var(--muted)}
+  .sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .sw div{border-radius:10px;padding:14px;font-size:12px;border:1px solid var(--border)}
+</style>
+<h1>Пейзажи и шкала поверхностей</h1>
+<p class="sub">Изображения сгенерированы локально из тех же OKLCH-токенов, что и вся палитра. Когда клиент загрузит свои фото — они встанут на это же место.</p>
+
+<h2>Главный экран</h2>
+<div class="hero">
+  <img src="hero.svg" alt="">
+  <div class="scrim"></div>
+  <div class="txt">
+    <span class="eyebrow">Цифровые аудиофабулы</span>
+    <div class="title">Звук<br><span class="gold">глубже</span><br>слов</div>
+  </div>
+</div>
+
+<h2>Обложки каталога</h2>
+<div class="grid">
+  <div class="card"><img src="cover-1.svg" alt=""><p>01 — тёплая охра</p></div>
+  <div class="card"><img src="cover-2.svg" alt=""><p>02 — золотой рассвет</p></div>
+  <div class="card"><img src="cover-3.svg" alt=""><p>03 — бронзовые сумерки</p></div>
+  <div class="card"><img src="cover-4.svg" alt=""><p>04 — холодная дымка</p></div>
+  <div class="card"><img src="cover-5.svg" alt=""><p>05 — хвойный туман</p></div>
+  <div class="card"><img src="cover-6.svg" alt=""><p>06 — закатный багрянец</p></div>
+</div>
+
+<h2>Шкала поверхностей</h2>
+<div class="sw">
+  <div style="background:var(--surface-0)">surface-0 · #0f0b08<br><span style="color:var(--muted)">фон страницы</span></div>
+  <div style="background:var(--surface-1)">surface-1 · #221d19<br><span style="color:var(--muted)">карточка</span></div>
+  <div style="background:var(--surface-2)">surface-2 · #2c2622<br><span style="color:var(--muted)">поле ввода</span></div>
+  <div style="background:var(--surface-3)">surface-3 · #39332e<br><span style="color:var(--muted)">hover</span></div>
+  <div style="background:var(--accent);color:#0f0b08;border-color:var(--accent)">accent · #dab975<br>шампанское золото</div>
+  <div style="background:var(--surface-1);color:var(--muted)">muted · #989189<br>6.30:1 на фоне</div>
+</div>

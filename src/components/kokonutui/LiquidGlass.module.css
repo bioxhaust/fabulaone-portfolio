@@ -1,0 +1,120 @@
+.surface {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: oklch(from var(--color-surface-1) l c h / 0.22);
+  backdrop-filter: blur(2px) saturate(140%);
+  -webkit-backdrop-filter: blur(2px) saturate(140%);
+}
+
+.shadow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    0 0 8px oklch(0 0 0 / 0.03),
+    0 2px 6px oklch(0 0 0 / 0.08),
+    inset 3px 3px 0.5px -3.5px oklch(1 0 0 / 0.09),
+    inset -3px -3px 0.5px -3.5px oklch(1 0 0 / 0.85),
+    inset 1px 1px 1px -0.5px oklch(1 0 0 / 0.6),
+    inset -1px -1px 1px -0.5px oklch(1 0 0 / 0.6),
+    inset 0 0 6px 6px oklch(1 0 0 / 0.12),
+    inset 0 0 2px 2px oklch(1 0 0 / 0.06),
+    0 0 12px oklch(0 0 0 / 0.15);
+}
+
+.filterLayer {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.shimmer {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    oklch(1 0 0 / 0.04) 45%,
+    oklch(1 0 0 / 0.08) 50%,
+    oklch(1 0 0 / 0.04) 55%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+
+.surface:hover .shimmer {
+  opacity: 1;
+}
+
+.button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid oklch(from var(--color-accent) l c h / 0.35);
+  border-radius: var(--radius-pill);
+  background: oklch(from var(--color-surface-1) l c h / 0.18);
+  color: var(--color-heading);
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1);
+  box-shadow:
+    0 0 0 1px oklch(from var(--color-cyan) l c h / 0.12),
+    0 0 28px oklch(from var(--color-accent) l c h / 0.18);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.button:active {
+  transform: scale(0.97);
+}
+
+.buttonLg {
+  min-height: 54px;
+  padding: var(--space-4) var(--space-10);
+  font-size: var(--text-base);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button:hover {
+    transform: scale(1.03);
+    border-color: oklch(from var(--color-cyan) l c h / 0.45);
+    box-shadow:
+      0 0 0 1px oklch(from var(--color-cyan) l c h / 0.22),
+      0 0 36px oklch(from var(--color-accent) l c h / 0.28);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .button:hover,
+  .button:active {
+    transform: none;
+  }
+
+  .shimmer {
+    display: none;
+  }
+}

@@ -1,0 +1,15 @@
+node_modules
+.next
+.git
+.env
+.env.*
+!.env.example
+media
+public/media
+*.tsbuildinfo
+npm-debug.log*
+.DS_Store
+.claude
+.freebuff
+chat.txt
+*.pdf

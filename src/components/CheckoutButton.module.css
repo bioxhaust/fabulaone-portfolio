@@ -1,0 +1,49 @@
+/* ─── Кнопка покупки ─────────────────────────────────────────────
+   База — глобальные .btn .btn-primary .btn-lg, здесь только
+   размеры и микро-движение стрелки.
+   ────────────────────────────────────────────────────────────── */
+
+.btn {
+  min-width: 240px;
+  flex: none;
+}
+
+.compact {
+  min-width: 0;
+  height: 48px;
+  padding-inline: var(--space-5, 20px);
+}
+
+.arrow {
+  flex: none;
+  transition: transform var(--duration) var(--ease-out);
+}
+
+.btn:hover .arrow { transform: translateX(3px); }
+
+/* Индикатор загрузки — кольцо в цвете текста кнопки */
+.spinner {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid oklch(from var(--color-void) l c h / 0.25);
+  border-top-color: var(--color-void);
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 560px) {
+  .btn:not(.compact) {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover .arrow { transform: none; }
+  .spinner { animation: none; }
+}

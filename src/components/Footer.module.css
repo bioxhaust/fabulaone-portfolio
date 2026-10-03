@@ -1,0 +1,86 @@
+.footer {
+  position: relative;
+  z-index: 1;
+  padding-block: var(--space-16) var(--space-8);
+  background: var(--color-surface-0);
+  border-top: 1px solid var(--color-border);
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-6);
+}
+
+.mark {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 500;
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-heading);
+}
+
+.line {
+  margin: 0;
+  max-width: 36ch;
+  color: var(--color-muted);
+  font-size: var(--text-base);
+  line-height: 1.5;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+  width: 100%;
+}
+
+.links a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--text-sm);
+  color: var(--color-body);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--color-border-strong);
+}
+
+/* Ховер только при настоящем указателе — на таче :hover залипает после
+   тапа и оставляет ссылку «наведённой» до следующего касания. */
+@media (hover: hover) and (pointer: fine) {
+  .links a:hover {
+    color: var(--color-heading);
+    text-decoration-color: var(--color-heading);
+  }
+}
+
+.links a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.baseline {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+.copy {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+.time {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-sm);
+  color: var(--color-cyan);
+}

@@ -1,0 +1,616 @@
+/* ─── FABULA ONE — Design Tokens & Global Styles ───────────────────
+   Палитра прежняя: холодная глубина, фиолетовый акцент, циан у звука.
+   Оболочка: Inter для заголовков (Apple-like sans), Golos для текста,
+   liquid glass на hero и шапке, pill-радиусы на интерактиве.
+   ────────────────────────────────────────────────────────────────── */
+
+/* ─── Tailwind — только для компонентов из реестра Kokonut UI ───────
+   Они написаны на утилитарных классах, поэтому Tailwind нужен. Но берём
+   от него ровно две части: тему (переменные) и утилиты.
+
+   Preflight (сброс браузерных стилей) сознательно НЕ импортируется. В
+   проекте уже 12 свёрстанных страниц со своим базовым слоем — второй reset
+   поверх них снял бы границы (`border: 0` на всё), переопределил бы кегли
+   заголовков и фон кнопок. Без Preflight компоненты реестра работают, а
+   существующая вёрстка не меняется ни на пиксель.
+
+   Порядок слоёв объявлен явно: утилиты последние, чтобы класс на самом
+   элементе побеждал темовые значения.                                */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+:root {
+  /* ── Нейтральная шкала: холодная космическая глубина ───────────────
+     Внимание: L в OKLCH перцептивная, не линейная — на глаз в коде ошибка
+     не видна. Все значения ниже прогнаны через scripts/check-palette.mjs
+     (OKLCH → sRGB → WCAG) и проверены на две вещи: контраст под роль и
+     попадание в гамму sRGB. Первый прогон этой палитры дал карточку 1.15:1
+     к фону (не отделялась) и три токена вне гаммы — отсюда текущие числа. */
+  --color-void:         oklch(0.085 0.022 270);  /* #010207 за краем          */
+  --color-surface-0:    oklch(0.140 0.028 268);  /* #050815 фон страницы      */
+  --color-surface-1:    oklch(0.255 0.032 268);  /* #1c2232 карточка 1.26:1   */
+  --color-surface-2:    oklch(0.305 0.035 268);  /* #272f41 input / поднятая  */
+  --color-surface-3:    oklch(0.355 0.038 268);  /* #333b50 hover             */
+
+  /* Две границы, а не одна. Тонкая — для декоративных разделителей,
+     где 3:1 не требуется и жирная линия выглядела бы дёшево. Усиленная —
+     для того, что WCAG 1.4.11 считает элементом управления (поля ввода). */
+  --color-border:        oklch(0.470 0.030 268); /* #535b6c декоративная      */
+  --color-border-strong: oklch(0.565 0.035 268); /* #6d768b 4.36:1 к фону     */
+  --color-border-lit:    oklch(0.600 0.085 292); /* #8177af тронуто фиолетом  */
+
+  --color-muted:        oklch(0.720 0.025 265);  /* #9da5b5 8.03 / 6.37:1     */
+  --color-body:         oklch(0.920 0.012 265);  /* #e1e5ed 15.73 / 12.47:1   */
+  --color-heading:      oklch(0.985 0.004 265);  /* #f9fafd 19.09:1           */
+
+  /* ── Акцент: фиолетовый + циановый, как на выбранном макете ──────
+     Хрома упёрта в предел sRGB: 0.19 при h≈298 уже вылетает из гаммы,
+     браузер обрезал бы цвет и уводил оттенок. 0.165 — максимум, который
+     держится честно.                                                  */
+  --color-accent:       oklch(0.700 0.165 298);  /* #ac84f6 основной CTA      */
+  --color-accent-hover: oklch(0.770 0.128 300);  /* #c1a1fb                   */
+  --color-accent-muted: oklch(0.730 0.115 290);  /* #a79beb приглушённый      */
+  --color-accent-deep:  oklch(0.480 0.170 292);  /* #6343b3 для градиентов    */
+
+  /* Второй акцент — ледяной циан. На макете им подсвечены звуковые
+     волны и иконки фич. Как текст на фоне даёт 11.89:1.               */
+  --color-cyan:         oklch(0.820 0.130 212);  /* #3ddaf5                   */
+
+  /* Свечение для атмосферы в герое и фоновых радиальных градиентах */
+  --color-aurora-1:     oklch(0.700 0.160 300);  /* #ae84f2 фиолетовое        */
+  --color-aurora-2:     oklch(0.750 0.110 215);  /* #49bfd9 циановое          */
+
+  /* Переход фиолет → барвинок → циан. Используется в заголовке героя
+     и в заливке главного CTA — на макете кнопка именно градиентная.   */
+  --gradient-aurora: linear-gradient(
+    100deg,
+    oklch(0.62 0.160 288) 0%,
+    oklch(0.74 0.150 298) 26%,
+    oklch(0.84 0.078 250) 54%,
+    oklch(0.86 0.115 212) 78%,
+    oklch(0.72 0.105 205) 100%
+  );
+
+  /* Стекло — только для элементов, лежащих поверх анимированного поля
+     частиц. Плотность 0.88, а не 0.5: под плашкой проходят яркие частицы
+     (hsl 190, 62% светлоты), и на просвечивающем фоне вторичный текст
+     проваливается до ~2:1. При 0.88 подложка ведёт себя как surface-1,
+     то есть держит проверенные 6.37:1. Прозрачнее делать нельзя.
+     На плоском фоне страницы стекло не применять: оно уводит карточку
+     обратно к surface-0 и убивает отделение 1.26:1.                   */
+  --glass-fill:   oklch(from var(--color-surface-1) l c h / 0.88);
+  --glass-stroke: oklch(from var(--color-border-strong) l c h / 0.45);
+
+  /* ── Стекло поверх ФОТО (герой) ────────────────────────────────────
+     Отдельно от --glass-fill: та плашка гасила яркое поле частиц и почти
+     непрозрачна. Здесь под карточкой лежит тёмная зона фото (нижнее озеро),
+     поэтому стекло можно сделать легче и дать backdrop-blur проявить кадр.
+     Карточку ставим над тёмным участком — тогда 0.72 surface-1 + блюр
+     держат тот же фон, что проверен для surface-1 (body 6.37:1).         */
+  --glass-photo-fill:   oklch(from var(--color-surface-1) l c h / 0.72);
+  --glass-photo-stroke: oklch(1 0 0 / 0.14);
+  --glass-photo-blur:   16px;
+
+  /* Бликующая фаска «liquid glass» — только инсет-тени, поэтому работает во
+     всех браузерах и не грузит композитор на скролле (SVG-преломление через
+     backdrop-filter: url() перерисовывало фикс-шапку каждый кадр — отказались).
+     Яркая кромка сверху-слева, мягкая снизу-справа, тонкое внутреннее гало:
+     край стекла ловит свет, как у Apple. Кладётся в box-shadow плашек. */
+  --glass-sheen:
+    inset 1.5px 1.5px 0.6px -1.5px oklch(1 0 0 / 0.85),
+    inset -1.5px -1.5px 0.6px -1.5px oklch(1 0 0 / 0.5),
+    inset 0 0 8px 2px oklch(1 0 0 / 0.05);
+
+  /* Затемняющие вуали поверх фото героя. Текст героя лежит на кадре, а не
+     на плоском фоне — без вуали контраст не гарантирован. База вуали = void.
+     Композиция градиента — в HeroBackground.module.css; здесь только база,
+     чтобы затемнение шло тем же чёрным, что и низ страницы (плавный стык).  */
+  --scrim-base: 8 12 24;                     /* void в rgb — для rgba-вуалей */
+  --scrim-fade: var(--color-surface-0);      /* во что растворяется низ фото */
+
+  /* ── «Тёмная пилюля» — главный CTA ─────────────────────────────────
+     Замена аурора-градиенту на кнопках (тот читался как «дефолтный дорогой
+     SaaS»). Сплошная почти-чёрная заливка (L 0.205), белая подпись.
+     Почти-чёрное на почти-чёрном фоне НЕ отделяется заливкой (1.11:1) —
+     край держит ОПАКОВАЯ волосяная рамка border-strong (4.36:1 к фону,
+     WCAG 1.4.11). На ховере рамка тронута акцентом. На фото героя пилюля
+     читается как тёмное пятно (как ENSŌ), на плоских секциях — по рамке.   */
+  --cta-solid:        oklch(0.205 0.024 268);
+  --cta-solid-hover:  oklch(0.275 0.028 268);
+  --cta-stroke:       var(--color-border-strong);
+  --cta-stroke-hover: var(--color-border-lit);
+  --cta-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.08),
+    0 10px 30px oklch(0 0 0 / 0.5);
+
+  /* ── Семантика ─────────────────────────────────────────────────── */
+  --color-success:      oklch(0.76 0.15 165);
+  --color-danger:       oklch(0.68 0.19  20);
+  --color-warning:      oklch(0.82 0.14  85);
+
+  /* ── Шрифты ────────────────────────────────────────────────────────
+     --font-inter / --font-golos / --font-playfair приходят из next/font.
+     Playfair — крупная редакционная антиква для героя и цитат (латиница +
+     кириллица + курсив). Inter — служебные заголовки/UI, Golos — текст.   */
+  --font-display: var(--font-inter), 'SF Pro Display', 'Helvetica Neue', system-ui, sans-serif;
+  --font-body:    var(--font-golos), var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-serif:   var(--font-playfair), 'Playfair Display', 'Iowan Old Style', 'Times New Roman', Georgia, serif;
+
+  /* ── Типографическая шкала ─────────────────────────────────────── */
+  --text-xs:   clamp(0.70rem, 1.8vw, 0.75rem);
+  --text-sm:   clamp(0.82rem, 2.0vw, 0.875rem);
+  --text-base: clamp(0.94rem, 2.4vw, 1.00rem);
+  --text-md:   clamp(1.05rem, 2.6vw, 1.125rem);
+  --text-lg:   clamp(1.15rem, 3.0vw, 1.25rem);
+  --text-xl:   clamp(1.30rem, 3.5vw, 1.50rem);
+  --text-2xl:  clamp(1.55rem, 4.2vw, 2.00rem);
+  --text-3xl:  clamp(1.90rem, 5.5vw, 2.75rem);
+  --text-4xl:  clamp(2.30rem, 7.0vw, 3.75rem);
+  --text-hero: clamp(2.75rem, 10.5vw, 7.5rem);   /* только для главного экрана */
+
+  /* Межбуквенное. Антиква в крупном кегле чуть плотнее, без капса. */
+  --tracking-hero:  -0.02em;
+  --tracking-tight: -0.015em;
+  --tracking-wide:   0.04em;
+
+  /* ── Ритм отступов (база 4) ────────────────────────────────────── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* ── Радиусы ───────────────────────────────────────────────────── */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   16px;
+  --radius-xl:   20px;
+  --radius-pill: 9999px;
+  /* Алиас к pill. По коду (аватары, точки, полосы волны, круглые бейджи)
+     повсюду ждали --radius-full, но его не было — border-radius уходил в
+     ноль, и всё «круглое» рисовалось квадратным. Держим синонимом. */
+  --radius-full: 9999px;
+
+  /* ── Тени и свечение ───────────────────────────────────────────── */
+  --shadow-card:  0 0 0 1px var(--color-border), 0 2px 12px oklch(0 0 0 / 0.45);
+  --shadow-float: 0 0 0 1px var(--color-border), 0 12px 40px oklch(0 0 0 / 0.6);
+  --glow-accent:  0 0 0 1px oklch(from var(--color-accent) l c h / 0.35),
+                  0 0 28px oklch(from var(--color-accent) l c h / 0.22);
+  --glow-soft:    0 0 60px oklch(from var(--color-aurora-1) l c h / 0.18);
+  --glow-cyan:    0 0 0 1px oklch(from var(--color-cyan) l c h / 0.28),
+                  0 0 24px oklch(from var(--color-cyan) l c h / 0.18);
+
+  /* Плавающая glass-шапка + верхний отступ. В потоке не занимает. */
+  --header-h: calc(64px + var(--space-3) + env(safe-area-inset-top, 0px));
+
+  /* Боковой отступ контейнера. Переопределяется в медиазапросах ниже. */
+  --container-pad: var(--space-6);
+
+  /* Насколько первый экран недотягивает до сгиба, чтобы показался край
+     следующего блока. Замер: плашки фич на десктопе ~147px высотой, при
+     96px видно около двух третей — этого хватает, чтобы прочитать их
+     и понять, что страница продолжается. */
+  --fold-peek: 96px;
+
+  /* ── Движение ──────────────────────────────────────────────────── */
+  --ease-out:  cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-glide: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration:  180ms;
+  --duration-slow: 420ms;
+  /* Переворот карточки фабулы. Намеренно длиннее остальных движений:
+     180° в 3D за 450ms читается как щелчок, а не как поворот. */
+  --duration-flip: 880ms;
+}
+
+/* ─── Мост в Tailwind ──────────────────────────────────────────────
+   Компоненты из реестра Kokonut UI ждут классы вида `bg-background`,
+   `text-muted-foreground`, `ring-primary` (соглашение shadcn). Здесь эти
+   имена связываются с нашими проверенными OKLCH-токенами — поэтому
+   компоненты выглядят как FABULA ONE, а не как дефолтный shadcn.
+
+   `inline` принципиально: без него Tailwind скопировал бы значение в момент
+   сборки, и утилита перестала бы следовать за нашей переменной.
+
+   Имена подобраны так, чтобы не столкнуться с нашими токенами. Например
+   `--color-border` здесь НЕ объявлен: он уже есть в :root, и пара
+   `--color-border: var(--color-border)` замкнулась бы сама на себя.
+   Компоненты реестра границу через shadcn-имя и не запрашивают.      */
+@theme inline {
+  /* shadcn-совместимые имена */
+  --color-background: var(--color-surface-0);
+  --color-foreground: var(--color-body);
+  --color-card: var(--color-surface-1);
+  --color-muted-foreground: var(--color-muted);
+  --color-primary: var(--color-accent);
+  --color-ring: var(--color-accent);
+
+  /* Собственные имена бренда — ими перекрашиваются скопированные
+     компоненты вместо их родных zinc-* и orange-*. */
+  --color-brand-bg: var(--color-surface-0);
+  --color-brand-card: var(--color-surface-1);
+  --color-brand-raised: var(--color-surface-2);
+  --color-brand-hover: var(--color-surface-3);
+  --color-brand-line: var(--color-border);
+  --color-brand-line-strong: var(--color-border-strong);
+  --color-brand-line-lit: var(--color-border-lit);
+  --color-brand-text: var(--color-body);
+  --color-brand-head: var(--color-heading);
+  --color-brand-muted: var(--color-muted);
+  --color-brand-accent: var(--color-accent);
+  --color-brand-accent-deep: var(--color-accent-deep);
+  --color-brand-cyan: var(--color-cyan);
+  --color-brand-void: var(--color-void);
+
+  /* Шрифты и радиусы — чтобы font-display/rounded-brand в компонентах
+     брали бренд, а не дефолт Tailwind. */
+  --font-display: var(--font-display);
+  --font-sans: var(--font-body);
+  --radius-brand: var(--radius-lg);
+
+  /* Пульсация на лице карточки-переворота. В оригинале Kokonut держит эти
+     кадры в <style jsx> внутри компонента — здесь они в теме, чтобы не
+     тащить styled-jsx ради одной анимации и чтобы свечение шло нашим
+     акцентом, а не зашитым оранжевым. */
+  --animate-fabula-pulse: fabulaPulse 3s linear infinite;
+}
+
+@keyframes fabulaPulse {
+  0% {
+    transform: scale(2);
+    opacity: 0;
+    box-shadow: 0 0 50px oklch(from var(--color-accent) l c h / 0.5);
+  }
+  50% {
+    transform: translateY(-5px) scale(1);
+    opacity: 1;
+    box-shadow: 0 8px 20px oklch(from var(--color-cyan) l c h / 0.45);
+  }
+  100% {
+    transform: translateY(5px) scale(0.1);
+    opacity: 0;
+    box-shadow: 0 10px 20px oklch(from var(--color-cyan) l c h / 0);
+  }
+}
+
+/* ── Reset ─────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Прокрутка нативная.
+   Раньше здесь работал самописный инерционный скролл (SmoothScroll): он
+   перехватывал колесо через preventDefault и каждый кадр двигал страницу
+   через window.scrollTo. Такая прокрутка идёт по главному потоку и поэтому
+   принципиально не может быть плавнее нативной, которую браузер отдаёт
+   композитору. Вместе с анимированным полем частиц это давало рывки —
+   ровно то, на что пожаловались. Компонент убран, осталось нативное
+   сглаживание якорей. */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 8px);
+}
+
+/* Вестибулярные нарушения: мгновенный переход вместо проезда. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  /* Место под скроллбар сразу — без скачка ширины и «обрезанных» линий. */
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) var(--color-surface-0);
+}
+
+/* WebKit / Chromium / Safari — скроллбар в тон сайта */
+html::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+html::-webkit-scrollbar-track {
+  background: var(--color-surface-0);
+  border-left: 1px solid oklch(from var(--color-border) l c h / 0.35);
+}
+
+html::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 2px;
+  border: 2px solid var(--color-surface-0);
+  background-clip: padding-box;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
+  border: 2px solid var(--color-surface-0);
+  background-clip: padding-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-surface-0);
+  color: var(--color-body);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Шапка вынута из потока. Картинки доходят до краёв секции, но не
+   залезают под полосу: текст и кнопки остаются под ней. */
+main {
+  position: relative;
+  z-index: 1;
+  padding-top: var(--header-h);
+}
+
+img, video { max-width: 100%; height: auto; display: block; }
+a { color: inherit; text-decoration: none; }
+
+/* Заголовки — редакционная антиква Playfair (--font-serif), как на
+   главной после редизайна ENSŌ. Раньше здесь стоял --font-display (Inter):
+   внутренние вкладки выходили «саасовыми» и не совпадали с героем. Числа,
+   таймкоды и мелкие UI-подписи по-прежнему набираются Inter/Golos через
+   свои классы (.price, .timecode, .eyebrow, .stat-value и т.п.). */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  color: var(--color-heading);
+  font-family: var(--font-serif);
+  font-optical-sizing: auto;
+  line-height: 1.1;
+  font-weight: 500;
+  letter-spacing: var(--tracking-tight);
+  text-wrap: balance;
+}
+
+p { margin: 0; }
+
+/* Акцент в тексте — 600, не браузерные 700. next/font грузит Golos/Inter
+   максимум до 600 (700 = синтетический faux-bold, запрещён направлением);
+   без этой строки голый <strong>/<b> (подтверждение логина, bold из CMS
+   в RichText) откатывался бы к 700 и рисовался поддельной жирностью. */
+strong, b { font-weight: 600; }
+
+::selection {
+  background: oklch(from var(--color-accent) l c h / 0.28);
+  color: var(--color-heading);
+}
+
+/* ── Контейнер ─────────────────────────────────────────────────── */
+/* Боковой отступ контейнера — токеном, а не литералом: на него завязаны
+   элементы, которые специально вылезают за контейнер «в край экрана»
+   (например ряд фич на главной). Если правил бы только .container, такие
+   элементы разъехались бы на величину разницы. */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: var(--container-pad);
+}
+
+/* На телефоне плашки фич ниже (81px против 147px на десктопе) — показываем
+   над сгибом меньше, иначе там остаётся полоса пустого фона. */
+@media (max-width: 700px) {
+  :root { --fold-peek: 64px; }
+}
+
+
+/* 320–360px: замер показал, что логотип и меню не влезают в 272px и дают
+   3px горизонтальной прокрутки. Здесь отступ дешевле, чем срезать бренд. */
+@media (max-width: 360px) {
+  :root { --container-pad: var(--space-4); }
+}
+
+@media (min-width: 768px) {
+  :root { --container-pad: var(--space-8); }
+}
+
+/* ── Утилиты бренда ────────────────────────────────────────────── */
+
+/* Короткая подпись-надзаголовок. Единый язык с кикером героя на главной:
+   капитель, разрядка, циан. Так «эйброу» на всех вкладках читается как одна
+   система, а не как случайные серые надписи из прежней вёрстки. */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: oklch(from var(--color-cyan) l c h / 0.9);
+}
+
+/* Хронометраж — табличные цифры, без рамки и точки. */
+.timecode {
+  display: inline;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  color: var(--color-cyan);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  white-space: nowrap;
+}
+
+.timecode::before {
+  content: none;
+}
+
+/* ── Кнопки ────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-3) var(--space-6);
+  border: none;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition-property: background-color, color, transform, opacity;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.btn:active { transform: scale(0.96); }
+
+.btn-primary {
+  background-color: var(--cta-solid);
+  color: var(--color-heading);
+  box-shadow: inset 0 0 0 1px var(--cta-stroke), var(--cta-shadow);
+}
+.btn-outline {
+  background: transparent;
+  color: var(--color-heading);
+  box-shadow: inset 0 0 0 1px var(--color-border-strong);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-body);
+}
+
+/* Ховер только там, где есть настоящий указатель. На таче :hover
+   залипает после тапа и оставляет кнопку «наведённой» до следующего
+   касания в другом месте. */
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover {
+    background-color: var(--cta-solid-hover);
+    box-shadow: inset 0 0 0 1px var(--cta-stroke-hover), var(--cta-shadow);
+  }
+
+  .btn-outline:hover {
+    background: var(--color-surface-2);
+    box-shadow: inset 0 0 0 1px var(--color-heading);
+  }
+
+  .btn-ghost:hover { background: var(--color-surface-2); color: var(--color-heading); }
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-lg {
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--text-base);
+  min-height: 54px;
+}
+
+/* ── Поля формы ────────────────────────────────────────────────── */
+.field { display: flex; flex-direction: column; gap: var(--space-2); }
+
+.label {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+.input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-2);
+  /* Поле ввода — элемент управления: WCAG 1.4.11 требует ≥3:1 к фону,
+     поэтому здесь усиленная граница, а не тонкая декоративная. */
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-body);
+  font-family: var(--font-body);
+  /* 16px нижняя граница, а не --text-base. На 390px шкала даёт 15.04px
+     (clamp 0.94rem побеждает 2.4vw), и iOS зумит страницу при фокусе —
+     это ломает чекаут. max() берёт 16px там, где токен меньше, и токен
+     на широких экранах, где он уже ≥16. */
+  font-size: max(16px, var(--text-base));
+  transition: border-color var(--duration) var(--ease-out),
+              box-shadow var(--duration) var(--ease-out);
+  min-height: 46px;
+}
+.input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px oklch(from var(--color-accent) l c h / 0.15);
+}
+.input::placeholder { color: var(--color-muted); }
+
+.input-error { border-color: var(--color-danger) !important; }
+.error-text { font-size: var(--text-xs); color: var(--color-danger); }
+
+/* ── Чекбокс ───────────────────────────────────────────────────── */
+.checkbox-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+.checkbox-wrap input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+  margin-top: 3px;
+}
+
+/* ── Карточка ──────────────────────────────────────────────────── */
+.card {
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* Пейзаж-подложка внутренних экранов. Тот же кадр, что в герое —
+   иначе магазин распадается на «космос на главной» и «плоский кабинет».
+   z-index: -1 + isolation на странице: иначе позиционированный слой
+   с z-index: 0 рисуется поверх обычного потока и закрывает текст.
+   Не next/image: это декор, не контент, повтор одного кадра из /public. */
+/* Внутренние страницы — плоский фон. Кадр космоса только на главной. */
+.scene-wash::before {
+  content: none;
+}
+
+/* ── Отступы секций ────────────────────────────────────────────── */
+.section    { padding-block: var(--space-24); }
+.section-sm { padding-block: var(--space-16); }
+
+/* ── Разделитель ───────────────────────────────────────────────── */
+hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 0;
+}
+
+/* ── Доступность: снижение анимации ────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

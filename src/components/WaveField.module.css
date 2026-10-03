@@ -1,0 +1,192 @@
+/* Слоистое звуковое поле — теперь ВСПОМОГАТЕЛЬНЫЙ слой поверх фотографии,
+   а не главный герой экрана. Клиент просил «минимум визуального шума»,
+   поэтому здесь всё приглушено: волна тоньше, свечение слабее.
+
+   Производительность. Раньше здесь было два круга ~900px с filter: blur(90px),
+   которые ещё и анимировались, и параллаксились каждый кадр — блюр такого
+   радиуса пересчитывается на каждом кадре и убивает плавность прокрутки.
+   Блюр убран полностью: radial-gradient с прозрачным краем и так даёт мягкое
+   пятно, а стоит ноль. По той же причине с полос снят box-shadow (72 тени
+   в бесконечной анимации), свечение осталось только на линии горизонта. */
+
+.field {
+  --p: 0;                      /* прогресс прокрутки 0…1, пишется из JS */
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Дальний план: тёплое свечение ─────────────────────────────── */
+.aurora {
+  position: absolute;
+  inset: -20% -10% 0;
+  transform: translate3d(0, calc(var(--p) * 70px), 0);
+  opacity: calc(1 - var(--p) * 0.55);
+  will-change: transform;
+}
+
+.blobA,
+.blobB {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.blobA {
+  width: 62vw;
+  height: 62vw;
+  max-width: 900px;
+  max-height: 900px;
+  top: -26%;
+  left: 4%;
+  background: radial-gradient(
+    circle,
+    oklch(from var(--color-aurora-1) l c h / 0.26) 0%,
+    oklch(from var(--color-aurora-1) l c h / 0.08) 42%,
+    transparent 72%
+  );
+  animation: driftA 30s ease-in-out infinite alternate;
+}
+
+.blobB {
+  width: 52vw;
+  height: 52vw;
+  max-width: 760px;
+  max-height: 760px;
+  top: -12%;
+  right: 2%;
+  background: radial-gradient(
+    circle,
+    oklch(from var(--color-aurora-2) l c h / 0.2) 0%,
+    oklch(from var(--color-aurora-2) l c h / 0.06) 45%,
+    transparent 74%
+  );
+  animation: driftB 38s ease-in-out infinite alternate;
+}
+
+@keyframes driftA {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(6%, 4%, 0) scale(1.1); }
+}
+
+@keyframes driftB {
+  from { transform: translate3d(0, 0, 0) scale(1.06); }
+  to   { transform: translate3d(-7%, 6%, 0) scale(1); }
+}
+
+/* ── Средний план: волна ───────────────────────────────────────── */
+.wave {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 14%;
+  height: 18svh;
+  min-height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(3px, 0.8vw, 10px);
+  padding-inline: var(--space-6);
+  transform: translate3d(0, calc(var(--p) * -120px), 0);
+  opacity: calc(0.85 - var(--p) * 0.8);
+  will-change: transform;
+
+  /* Края растворяются, волна не упирается в границы экрана */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 16%,
+    black 84%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 16%,
+    black 84%,
+    transparent 100%
+  );
+}
+
+.bar {
+  flex: 1 1 0;
+  min-width: 2px;
+  max-width: 6px;
+  height: calc(var(--h) * 100%);
+  border-radius: var(--radius-full);
+  transform-origin: center;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    oklch(from var(--color-accent) l c h / 0.85) 50%,
+    transparent 100%
+  );
+  /* Полоса по умолчанию статична. Почему дышит только каждая четвёртая —
+     с числами замера в WaveField.tsx. */
+  transform: scaleY(0.78);
+  opacity: 0.62;
+}
+
+.breathing {
+  animation: breathe 5.2s var(--ease-glide) infinite;
+  animation-delay: var(--d);
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scaleY(0.55); opacity: 0.45; }
+  50%      { transform: scaleY(1);    opacity: 0.9; }
+}
+
+/* ── Ближний план: линия горизонта ─────────────────────────────── */
+.horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 14%;
+  height: 1px;
+  transform: translate3d(0, calc(var(--p) * -180px), 0);
+  opacity: calc(1 - var(--p));
+  will-change: transform;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    oklch(from var(--color-accent) l c h / 0.5) 50%,
+    transparent 100%
+  );
+  box-shadow: 0 0 30px oklch(from var(--color-accent) l c h / 0.35);
+}
+
+/* ── Зерно: снимает бандинг на больших градиентах ──────────────── */
+.grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.1;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Снижение анимации ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .blobA,
+  .blobB,
+  .breathing {
+    animation: none;
+  }
+  /* Конечное состояние остаётся видимым: полосы стоят на своих высотах,
+     просто не дышат. */
+  .bar { opacity: 0.7; transform: scaleY(0.85); }
+  .aurora,
+  .wave,
+  .horizon {
+    transform: none;
+    will-change: auto;
+  }
+}
+
+/* На узких экранах волна мешает читать заголовок — убираем её совсем.
+   ТЗ требует мобайл-фёрст, а «минимум шума» на 375px критичнее эффекта. */
+@media (max-width: 700px) {
+  .wave { display: none; }
+  .horizon { bottom: 18%; }
+}

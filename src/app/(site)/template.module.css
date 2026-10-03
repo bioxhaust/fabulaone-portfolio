@@ -1,0 +1,22 @@
+/* Обёртка перехода между страницами. Не задаёт ни border/padding сверху,
+   ни overflow/contain/transform — иначе оборвётся схлопывание отрицательного
+   margin у .stage (герой подъезжает под фикс-шапку) и containing-block для
+   fixed. Только opacity → стекинг-контекст без влияния на раскладку. */
+.page {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .page {
+    animation: pageEnter 320ms var(--ease-out) both;
+  }
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      # Host 5433 — если на 5432 уже стоит локальный Postgres
+      - '5433:5432'
+    environment:
+      POSTGRES_DB: fabulaone
+      POSTGRES_USER: fabula
+      POSTGRES_PASSWORD: fabula
+    volumes:
+      - fabula_pg_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U fabula -d fabulaone']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - fabula_redis_dev:/data
+
+volumes:
+  fabula_pg_dev:
+  fabula_redis_dev:

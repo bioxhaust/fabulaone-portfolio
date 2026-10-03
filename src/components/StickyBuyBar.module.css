@@ -1,0 +1,56 @@
+.bar {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    padding: var(--space-3) var(--container-pad) calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+    background: var(--color-surface-0);
+    border-top: 1px solid var(--color-border);
+    transform: translate3d(0, 110%, 0);
+    transition: transform 480ms var(--ease-glide);
+    pointer-events: none;
+  }
+
+  .barShow {
+    transform: none;
+    pointer-events: auto;
+  }
+}
+
+.meta {
+  min-width: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.name {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.price {
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar { transition: none; }
+}
